@@ -1,9 +1,10 @@
 <script setup>
 	import axios from 'axios';
-	import { ref, onMounted } from 'vue';
+	import { ref, onBeforeMount, onBeforeUnmount, onMounted } from 'vue';
 	import DefaultButton from '@/components/DefaultButton.vue';
 	import Title from '@/components/Title.vue';
 	import UserCard from '@/components/UserCard.vue';
+	import gsap from 'gsap';
 	
 	const showForm = ref(false)
 	const userFunction = ref('')
@@ -40,7 +41,60 @@
       showForm.value = !showForm.value
    }
 
-	onMounted(async () => {
+	const animateIntro = () => {
+		let tl = gsap.timeline({defaults: {
+			duration: 0.25,
+			ease: 'power1.inOut'
+		}})
+
+		tl.fromTo('header>*:first-child', {
+			autoAlpha: 0,
+			y: -50
+		}, {
+			autoAlpha: 1,
+			y: 0
+		})
+		
+		tl.fromTo('header>*:nth-child(2)', {
+			autoAlpha: 0,
+			y: -50
+		}, {
+			autoAlpha: 1,
+			y: 0
+		})
+
+		tl.fromTo('ul', {
+			autoAlpha: 0,
+			x: -50
+		}, {
+			autoAlpha: 1,
+			x: 0
+		})
+	}
+
+	const animateExit = () => {
+		let tl = gsap.timeline({defaults: {
+			duration: 0.25,
+			ease: 'power1.inOut'
+		}})
+
+		tl.to('ul', {
+			autoAlpha: 0,
+			x: -50
+		})
+		
+		tl.to('header>*:nth-child(2)', {
+			autoAlpha: 0,
+			y: -50
+		})
+
+		tl.to('header>*:first-child', {
+			autoAlpha: 0,
+			y: -50
+		})
+	}
+
+	onBeforeMount(async () => {
 		const req = await axios.get('https://reqres.in/api/users')
 
 		users.value = req.data.data.map(u => {
@@ -51,6 +105,14 @@
 				urlPicture: u.avatar
 			}
 		})
+	})
+
+	onMounted(() => {
+		animateIntro()
+	})
+
+	onBeforeUnmount(() => {
+		animateExit()
 	})
 </script>
 
