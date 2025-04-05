@@ -9,12 +9,10 @@ import { RouterView } from 'vue-router'
 </template>
 
 <style scoped>
-.route-enter-active,
 .route-leave-active {
   transition: all 0.25s ease-in-out;
 }
 
-.route-enter-from,
 .route-leave-to {
   opacity: 0;
   transform: translateX(-100px)
