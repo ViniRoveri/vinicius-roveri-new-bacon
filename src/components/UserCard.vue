@@ -1,10 +1,27 @@
 <script setup>
+import { ref } from 'vue';
 import { RouterLink } from 'vue-router';
 
-   defineProps({
+   const props = defineProps({
       deleteFunction: Function,
+      editFunction: Function,
       user: Object
    })
+
+   const isEditMode = ref(false)
+   const newUsername = ref(props.user.name)
+
+   const exitEditMode = () => {
+      isEditMode.value = false
+      newUsername.value = props.user.name
+   }
+
+   const editUser = () => {
+      if(!newUsername.value) return
+
+      isEditMode.value = false
+      props.editFunction(props.user.id, newUsername)
+   }
 </script>
 
 <template>
@@ -12,23 +29,35 @@ import { RouterLink } from 'vue-router';
       <img class="userPicture" :src="user.urlPicture">
 
       <div class="userInfo">
-         <p>#{{ user.id }}</p>
-         <p>{{ user.name }}</p>
-         <p>{{ user.email }}</p>
+         <p class="userId">#{{ user.id }}</p>
+
+         <p v-if="!isEditMode" class="userName">{{ user.name }}</p>
+         <input v-else class="userName" v-model="newUsername" type="text">
+
+         <p class="userEmail">{{ user.email }}</p>
       </div>
 
-      <div class="actions">
-         <RouterLink :to="`/user/${user.id < 7 ? user.id : 1}`">
+      <div v-if="!isEditMode" class="actions">
+         <button  @click="isEditMode = true" type="button">
             <i class="ri-edit-box-line"></i>
-         </RouterLink>
+         </button>
          
          <button @click="deleteFunction(user.id)" type="button">
             <i class="ri-delete-bin-6-line"></i>
          </button>
 
-         <RouterLink :to="`/user/${user.id < 7 ? user.id : 1}`">
+         <RouterLink :to="`/user/${user.id}`">
             <i class="ri-eye-line"></i>
          </RouterLink>
+      </div>
+      <div v-else class="actions">
+         <button  @click="editUser" type="button">
+            <i class="ri-check-line"></i>
+         </button>
+
+         <button  @click="exitEditMode" type="button">
+            <i class="ri-close-line"></i>
+         </button>
       </div>
    </div>
 </template>
@@ -59,19 +88,25 @@ import { RouterLink } from 'vue-router';
       justify-content: space-between;
    }
 
-   .userInfo>p:not(:nth-child(2)){
+   .userId, .userEmail{
       color: #797979;
    }
 
-   .userInfo>p:nth-child(2){
+   .userName{
       font-size: 18px;
       font-weight: 600;
+   }
+
+   input.userName{
+      border: 1px solid #797979;
+      border-radius: 5px;
+      padding: 0 8px;
    }
    
    .actions{
       display: flex;
       gap: 16px;
-      justify-content: space-between;
+      justify-content: end;
    }
 
    .actions i {

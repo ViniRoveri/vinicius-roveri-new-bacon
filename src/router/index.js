@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import UserView from '../views/UserView.vue'
+import NotFoundView from '../views/NotFoundView.vue'
 
 Vue.use(VueRouter)
 
@@ -18,6 +19,11 @@ const router = new VueRouter({
       path: '/user/:id',
       name: 'user',
       component: UserView
+    },
+    {
+      path: '/:catchAll(.*)',
+      name: 'not-found',
+      component: NotFoundView
     }
   ]
 })

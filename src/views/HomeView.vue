@@ -16,12 +16,20 @@
 		users.value.push({
 			id: lastAddedId + 1,
 			name: username.value,
-			email: username.value.replace(' ', '.') + '@newbacon.com',
-			urlPicture: 'https://ui-avatars.com/api/?name=' + username.value.replace(' ', '+')
+			email: username.value.toLowerCase().replaceAll(' ', '.') + '@newbacon.com',
+			urlPicture: 'https://ui-avatars.com/api/?name=' + username.value.replaceAll(' ', '+')
 		})
 
 		username.value = ''
 		userFunction.value = ''
+	}
+
+	const editUser = (id, newName) => {
+		const user = users.value.find(u => u.id == id)
+		const userEmailDomain = user.email.split('@')[1]
+
+		user.name = newName.value
+		user.email = `${newName.value.toLowerCase().replaceAll(' ', '.')}@${userEmailDomain}`
 	}
 
    const deleteUser = id => {
@@ -79,7 +87,7 @@
 
 		<ul>
 			<li v-for="user in users" :key="user.id">
-				<UserCard :deleteFunction="deleteUser" :user="user"/>
+				<UserCard :deleteFunction="deleteUser" :editFunction="editUser" :user="user"/>
 			</li>
 		</ul>
 	</main>
