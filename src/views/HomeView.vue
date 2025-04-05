@@ -1,6 +1,6 @@
 <script setup>
 	import axios from 'axios';
-	import { ref, onBeforeMount, onBeforeUnmount, onMounted } from 'vue';
+	import { ref, onBeforeMount, onMounted, watch } from 'vue';
 	import DefaultButton from '@/components/DefaultButton.vue';
 	import Title from '@/components/Title.vue';
 	import UserCard from '@/components/UserCard.vue';
@@ -12,7 +12,10 @@
 	const users = ref([])
 
 	const addUser = () => {
-		const lastAddedId = [...users.value].sort((a, b) => b.id - a.id)[0].id
+		let lastAddedId = 0
+		if(users.value.length > 0){
+			lastAddedId = [...users.value].sort((a, b) => b.id - a.id)[0].id
+		}
 		
 		users.value.push({
 			id: lastAddedId + 1,
@@ -72,28 +75,6 @@
 		})
 	}
 
-	const animateExit = () => {
-		let tl = gsap.timeline({defaults: {
-			duration: 0.25,
-			ease: 'power1.inOut'
-		}})
-
-		tl.to('ul', {
-			autoAlpha: 0,
-			x: -50
-		})
-		
-		tl.to('header>*:nth-child(2)', {
-			autoAlpha: 0,
-			y: -50
-		})
-
-		tl.to('header>*:first-child', {
-			autoAlpha: 0,
-			y: -50
-		})
-	}
-
 	onBeforeMount(async () => {
 		const req = await axios.get('https://reqres.in/api/users')
 
@@ -111,8 +92,23 @@
 		animateIntro()
 	})
 
-	onBeforeUnmount(() => {
-		animateExit()
+	watch(showForm, newValue => {
+		let tl = gsap.timeline({defaults: {
+			duration: 0.3,
+			ease: 'power1.inOut'
+		}})
+
+		if(newValue){
+			tl.to('form', {
+				height: '275px',				
+				marginBottom: '44px',
+			})
+		}else{
+			tl.to('form', {
+				height: '0px',				
+				marginBottom: 0,
+			})
+		}
 	})
 </script>
 
@@ -122,12 +118,12 @@
 			<Title>Usuários</Title>
 
          <div @click="toggleShowForm">
-            <DefaultButton v-if="!showForm" color="black">Novo Usuário</DefaultButton>
-            <DefaultButton v-else color="gray" >Cancelar</DefaultButton>
+				<DefaultButton v-if="!showForm" color="black">Novo Usuário</DefaultButton>
+				<DefaultButton v-else color="gray" >Cancelar</DefaultButton>
          </div>
       </header>
 		
-      <form autocomplete="off" :style="!showForm ? 'display: none' : ''" @submit.prevent="addUser">
+      <form autocomplete="off" @submit.prevent="addUser">
 			<div>
 				<label for="username" maxlength="40">Nome do usuário</label>
 				<input id="username" placeholder="Nome do usuário" required type="text" v-model="username">
@@ -160,7 +156,8 @@
 		display: flex;
 		flex-direction: column;
 		gap: 24px;
-		margin-bottom: 44px;
+		height: 0px;
+		overflow: hidden;
 	}
 
 	label{

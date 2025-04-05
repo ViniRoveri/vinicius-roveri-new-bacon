@@ -1,6 +1,7 @@
 <script setup>
-import { ref } from 'vue';
-import { RouterLink } from 'vue-router';
+   import { ref } from 'vue';
+   import { RouterLink } from 'vue-router';
+   import gsap from 'gsap'
 
    const props = defineProps({
       deleteFunction: Function,
@@ -22,10 +23,26 @@ import { RouterLink } from 'vue-router';
       isEditMode.value = false
       props.editFunction(props.user.id, newUsername)
    }
+
+   const deleteUser = () => {
+      const animationDuration = 0.3
+
+      gsap.to(`#userCard_${props.user.id}`, {
+         duration: animationDuration,
+			ease: 'power1.inOut',
+         autoAlpha: 0,
+         height: 0,
+         x: -100
+      })
+
+      setTimeout(() => {
+         props.deleteFunction(props.user.id)
+      }, animationDuration * 1000)
+   }
 </script>
 
 <template>
-   <div class="card">
+   <div class="card" :id="`userCard_${user.id}`">
       <img class="userPicture" :src="user.urlPicture">
 
       <div class="userInfo">
@@ -42,7 +59,7 @@ import { RouterLink } from 'vue-router';
             <i class="ri-edit-box-line"></i>
          </button>
          
-         <button @click="deleteFunction(user.id)" type="button">
+         <button @click="deleteUser" type="button">
             <i class="ri-delete-bin-6-line"></i>
          </button>
 
